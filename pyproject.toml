@@ -1,0 +1,54 @@
+[project]
+name = "hotel-cancellation-prediction"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "joshuaccarter", email = "54517788+joshuaccarter@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.0",
+    "lightgbm>=4.7.0",
+    "numpy>=2.5.4",
+    "pandas>=3.1.0",
+    "pydantic>=2.14.1",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.1",
+    "uvicorn>=0.54.0",
+    "xgboost>=3.4.1",
+]
+
+[project.scripts]
+hotel-cancellation-prediction = "hotel_cancellation_prediction:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "nbclient>=0.11.0",
+    "nbformat>=5.11.1",
+    "pytest>=9.1.1",
+    "ruff>=0.17.3",
+    "seaborn>=0.13.2",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # Line length is enforced by ruff format
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["W605", "F841"]
+
+

@@ -1,0 +1,48 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Python bytecode and virtual environments
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+env/
+
+# Package builds and eggs
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Quality, testing, and formatting caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Notebooks and exploratory data
+notebooks/
+scripts/
+
+# Raw data (exclude large dataset; model artifact in models/ is used for inference)
+data/raw/
+data/processed/
+
+# IDE, OS, and editor temp files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
