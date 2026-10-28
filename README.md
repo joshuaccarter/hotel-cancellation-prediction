@@ -16,7 +16,7 @@
 In the hospitality industry, room inventory is **strictly perishable**: an unsold room overnight generates zero revenue, and that revenue potential vanishes permanently at night audit. Conversely, walking an overbooked guest incurs relocation premiums, transport costs, and severe reputational damage.
 
 This project delivers an end-to-end, production-grade Machine Learning and Revenue Management system that unifies two complementary decision layers:
-1. **Individual Cancellation Likelihood Prediction**: A calibrated gradient-boosted decision engine that evaluates bookings strictly at the time of reservation creation ($T_0$), predicting cancellation probabilities under an empirically derived **asymmetric loss matrix** ($C_u$ unbooked room loss vs. $C_o$ overbooked walk loss).
+1. **Individual Cancellation Likelihood Prediction**: A calibrated gradient-boosted decision engine that evaluates bookings strictly at the time of reservation creation (T0), predicting cancellation probabilities under an empirically derived **asymmetric loss matrix** (Cu unbooked room loss vs. Co overbooked walk loss).
 2. **Dynamic Overbooking Glide Path Engine**: A portfolio-level engine that aggregates all on-the-books (OTB) reservations for a target arrival date. It enforces lead-time overbooking constraints and models physical arrivals using a **Bayesian Poisson-Binomial distribution** to bound capacity overflow probability $P(S > \text{Capacity}) \le \alpha$.
 
 ### Key Business Results
@@ -35,18 +35,18 @@ Hotels face an aggregate cancellation rate of approximately **37%**. If a 200-ro
 Traditional ML classification minimizes symmetric error (e.g., accuracy at $\theta = 0.50$). In hospitality, false positives and false negatives carry drastically different costs:
 
 $$\begin{aligned}
-C_u &= \text{Cost of Underbooking (Unsold Room)} = \text{ADR}_{p50} \\
-C_o &= \text{Cost of Overbooking (Walked Guest)} = (\text{ADR}_{p75} - \text{ADR}_{p50}) + \$25\text{ friction penalty}
+\text{Cu} &= \text{Cost of Underbooking (Unsold Room)} = \text{ADR(p50)} \\
+\text{Co} &= \text{Cost of Overbooking (Walked Guest)} = (\text{ADR(p75)} - \text{ADR(p50)}) + \$25\text{ friction penalty}
 \end{aligned}$$
 
 Using empirical quantiles from the benchmark dataset:
-- **Resort Hotel**: $C_u = \$75.00$, $C_o = \$75.00$ ($\theta^* = 0.50$)
-- **City Hotel**: $C_u = \$100.00$, $C_o = \$51.00$ ($\theta^* = 0.338$)
-- **Blended Property Baseline**: $C_u = \$95.00$, $C_o = \$56.00$ ($\theta^* = 0.38 - 0.40$)
+- **Resort Hotel**: Cu = \$75.00, Co = \$75.00 ($\theta^* = 0.50$)
+- **City Hotel**: Cu = \$100.00, Co = \$51.00 ($\theta^* = 0.338$)
+- **Blended Property Baseline**: Cu = \$95.00, Co = \$56.00 ($\theta^* = 0.38 - 0.40$)
 
 The cost-optimal Bayesian decision threshold is:
 
-$$\theta^* = \frac{C_o}{C_u + C_o} \approx 0.40$$
+$$\theta^* = \frac{\text{Co}}{\text{Cu} + \text{Co}} \approx 0.40$$
 
 Operating at $\theta^* = 0.40$ ensures that revenue managers accept additional reservations until the marginal expected walk penalty equals the marginal opportunity cost of an empty room.
 
@@ -70,7 +70,7 @@ The system enforces a **Lead-Time Glide Path** that steps down allowable invento
 
 ## 3. Summary of Feature Selection & Governance
 
-### 3.1 Strict Point-of-Booking ($T_0$) Boundary
+### 3.1 Strict Point-of-Booking (T0) Boundary
 To guarantee real-world validity, only features irrevocably known at the precise moment of booking confirmation are permitted.
 
 #### Purged Leakage Columns
@@ -83,12 +83,13 @@ To guarantee real-world validity, only features irrevocably known at the precise
    - `total_of_special_requests`: Special requests (cribs, high floor) accumulate between booking and arrival, creating operational target drift.
 
 ### 3.2 Feature Engineering
-- `total_stay_nights`: $N_{\text{weekend}} + N_{\text{week}}$ (composite length of stay).
-- `total_guests`: $\text{adults} + \text{children} + \text{babies}$ (party volume).
+- `total_stay_nights`: N(weekend) + N(week) (composite length of stay).
+- `total_guests`: adults + children + babies (party volume).
 - `includes_weekend`: Binary flag indicating presence of weekend nights.
 - **Trigonometric Cyclical Encodings**:
   Calendar week numbers (1–53) possess continuous circular topology (week 53 connects to week 1). Linear encoding introduces an artificial distance of 52 units; we resolve this via sine and cosine transformations:
-  $$\text{week\_sin} = \sin\left(\frac{2\pi \cdot t}{53}\right), \quad \text{week\_cos} = \cos\left(\frac{2\pi \cdot t}{53}\right)$$
+  - `week_sin` = $\sin\left(\frac{2\pi \cdot t}{53}\right)$
+  - `week_cos` = $\cos\left(\frac{2\pi \cdot t}{53}\right)$
 
 ### 3.3 Production Feature Schema (19 Features)
 - **Numerical (11)**: `lead_time`, `stays_in_weekend_nights`, `stays_in_week_nights`, `adults`, `children`, `babies`, `previous_cancellations`, `previous_bookings_not_canceled`, `booking_changes`, `days_in_waiting_list`, `adr`.
